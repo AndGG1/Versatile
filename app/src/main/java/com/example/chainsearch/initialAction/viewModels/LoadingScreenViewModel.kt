@@ -1,7 +1,6 @@
 package com.example.chainsearch.initialAction.viewModels
 
 import android.content.Context
-import android.view.View
 import androidx.lifecycle.ViewModel
 import com.example.chainsearch.initialAction.loadingPack.LoadingChecks
 import com.example.chainsearch.initialAction.viewModels.states.ExternalListener
@@ -16,11 +15,12 @@ class LoadingScreenViewModel : ViewModel() {
     var externalListener: ExternalListener? = null
     var internalListener: InternalListener? = null
 
-    fun checkExternalData(context: Context, minimumFreeLoad: Double) {
-        externalListener = LoadingChecks.checkExteriorEnv(context, minimumFreeLoad)
+    fun setNewVal(b: Boolean) {
+        _activityDrawnState.value = b
     }
 
-    fun checkInternalData(rootView: View) {
-        internalListener = LoadingChecks.checkInternalEnv(rootView, _activityDrawnState)
+    fun checkExternalInternalData(context: Context, p: Double) {
+        externalListener = LoadingChecks.checkExteriorEnv(context, p)
+        internalListener = LoadingChecks.checkInternalEnv()
     }
 }

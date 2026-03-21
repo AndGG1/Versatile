@@ -1,9 +1,11 @@
 package com.example.chainsearch.initialAction.loadingPack
 
+import android.content.Intent
 import com.example.chainsearch.R
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.example.chainsearch.initialAction.viewModels.LoadingScreenViewModel
@@ -12,11 +14,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
+private val viewModel: LoadingScreenViewModel = LoadingScreenViewModel()
 class LoadingScreenActivity : ComponentActivity() {
 
     private var keepSplash = true
-    private val viewModel: LoadingScreenViewModel = LoadingScreenViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +33,26 @@ class LoadingScreenActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             delay(900)
-            withContext(Dispatchers.IO) {
-                viewModel.checkInternalData(window.decorView.rootView)
-                viewModel.checkExternalData(this@LoadingScreenActivity, 1.0)
-            }
             keepSplash = false
+
+            startActivity(Intent(this@LoadingScreenActivity, LoadingScreenTemplate::class.java))
+
+            withContext(Dispatchers.IO) {
+                viewModel.checkExternalInternalData(
+                    this@LoadingScreenActivity, 1.5)
+            }
+
+            delay(500)
+            viewModel.setNewVal(true)
+        }
+    }
+}
+
+class LoadingScreenTemplate : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            LoadingScreen(viewModel)
         }
     }
 }
