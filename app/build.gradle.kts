@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,12 +22,46 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val localProperties = Properties()
+    val localPropertiesFile = File(rootProject.rootDir, "local.properties")
+    if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
+        localPropertiesFile.inputStream().use {
+            localProperties.load(it)
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+
+            buildConfigField(
+                "String",
+                "AUTH_KEY",
+                "\"${localProperties.getProperty("AUTH_KEY")}\""
+            )
+
+            buildConfigField(
+                "String",
+                "API_KEY",
+                "\"${localProperties.getProperty("API_KEY")}\""
+            )
+        }
+
+        debug {
+            buildConfigField(
+                "String",
+                "AUTH_KEY",
+                "\"${localProperties.getProperty("AUTH_KEY")}\""
+            )
+
+            buildConfigField(
+                "String",
+                "API_KEY",
+                "\"${localProperties.getProperty("API_KEY")}\""
             )
         }
     }
@@ -38,12 +74,15 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        resValues = true
     }
 }
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("de.mkammerer:argon2-jvm:2.12")
 
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.splashscreen)
@@ -55,6 +94,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
