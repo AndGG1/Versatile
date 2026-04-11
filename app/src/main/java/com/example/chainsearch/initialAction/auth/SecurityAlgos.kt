@@ -1,10 +1,24 @@
 package com.example.chainsearch.initialAction.auth
 
+//
+/////
+//////////
+
+//THIS CODE IS CURRENTLY POINTLESS.
+//WHEN THE API CODE WILL BE IMPLEMENTED,
+// THE HASHING FUNCTION(THEN CONVERTED TO SHA-1) WILL HAVE AN USAGE.
+
+//////////
+/////
+//
+
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.chainsearch.BuildConfig
-import de.mkammerer.argon2.Argon2Factory
+import com.lambdapioneer.argon2kt.Argon2Kt
+import com.lambdapioneer.argon2kt.Argon2KtResult
+import com.lambdapioneer.argon2kt.Argon2Mode
+import com.lambdapioneer.argon2kt.Argon2Version
 import java.security.SecureRandom
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -20,18 +34,20 @@ fun convertTo_SHA_256(s: String): String {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun convertTo_Argon2id(s: String) : String {
-    val saltKey: String = generateSaltKey(s.length)
-    val config = Argon2Factory.create()
+fun convertTo_Argon2id(s: String, saltKey: String) : String {
+    val argon2k = Argon2Kt()
 
-    val hash: String = config.hash(
-        3,
+    val hashRes: Argon2KtResult = argon2k.hash(
+        Argon2Mode.ARGON2_ID,
+        s.toByteArray(),
+        saltKey.toByteArray(),
+        5,
         65536,
         1,
-        s + saltKey
+        32,
+        Argon2Version.V13
     )
-    Log.d("ver+test", hash)
-    return hash
+    return Base64.getEncoder().encodeToString(hashRes.rawHashAsByteArray())
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
