@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.StatFs;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.chainsearch.initialAction.auth.SecurityAlgosKt;
 import com.example.chainsearch.initialAction.viewModels.states.ExternalListener;
 import com.example.chainsearch.initialAction.viewModels.states.InternalListener;
 
@@ -56,8 +58,21 @@ public class LoadingChecks {
 
     //TODO: Add Database internal check!!!
     public static InternalListener checkInternalEnv() {
+        //delayAction();
 
         //TODO: Complete this when Database Impl. is ready!!!
         return new InternalListener(true);
+    }
+
+    private static void delayAction() {
+        String saltKey = "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            saltKey = SecurityAlgosKt.generateSaltKey(32);
+        }
+        for (int i = 1; i <= 10; i++) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                SecurityAlgosKt.convertTo_Argon2id("12345678", saltKey);
+            }
+        }
     }
 }
