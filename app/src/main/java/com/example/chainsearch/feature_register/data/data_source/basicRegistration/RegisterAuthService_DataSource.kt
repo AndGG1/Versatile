@@ -1,6 +1,6 @@
-package com.example.chainsearch.initialAction.auth.registerFunctionality
+package com.example.chainsearch.feature_register.data.data_source.basicRegistration
 
-import com.example.chainsearch.initialAction.viewModels.LoadingScreenViewModel
+import com.example.chainsearch.feature_register.data.data_source.helpers.callbacks.IsValidCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -13,7 +13,7 @@ private val databaseRef = FirebaseDatabase.getInstance(
     "https://versatile-bf2d4-default-rtdb.europe-west1.firebasedatabase.app/"
 ).reference
 
-fun callRegisterEmail(username: String, password: String, email: String, viewModel: LoadingScreenViewModel) {
+fun callRegisterEmail(username: String, password: String, email: String, callback: IsValidCallback) {
     CoroutineScope(Dispatchers.IO).launch {
         delay(350)
 
@@ -22,12 +22,6 @@ fun callRegisterEmail(username: String, password: String, email: String, viewMod
                 mAuth,
                 databaseRef
             )
-        registerAuthService.registerEmail(email, password, username) { isValid, _ ->
-            if (!isValid) {
-                viewModel.setNewVal(3)
-            } else {
-                //TODO: Change to new window
-            }
-        }
+        registerAuthService.registerWithEmail(email, password, username, callback)
     }
 }

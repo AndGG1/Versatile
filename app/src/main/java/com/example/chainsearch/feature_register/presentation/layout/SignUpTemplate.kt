@@ -1,4 +1,4 @@
-package com.example.chainsearch.initialAction.loadingPack.Templates
+package com.example.chainsearch.feature_register.presentation.layout
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
@@ -34,6 +34,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,28 +53,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chainsearch.R
-import com.example.chainsearch.initialAction.auth.registerFunctionality.signInWithGoogle
-import com.example.chainsearch.initialAction.auth.registerFunctionality.callRegisterEmail
-import com.example.chainsearch.initialAction.viewModels.LoadingScreenViewModel
+import com.example.chainsearch.feature_register.presentation.helpers.LayoutHelpers.StatesManager
+import com.example.chainsearch.feature_register.presentation.helpers.LayoutHelpers.TextConfig
+import com.example.chainsearch.feature_register.presentation.helpers.LayoutHelpers.validateInputs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.State
+import com.example.chainsearch.feature_register.presentation.helpers.ViewModelHelpers.RegisterEvent
+import com.example.chainsearch.feature_register.presentation.helpers.ViewModelHelpers.RegisterMethod
+import com.example.chainsearch.feature_register.presentation.helpers.ViewModelHelpers.UserConfig
+import com.example.chainsearch.feature_register.presentation.viewModels.RegisterViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpTemplate(viewModel: LoadingScreenViewModel) {
+fun SignUpTemplate(viewModel: RegisterViewModel) {
     val currContext = LocalContext.current
 
-    val orange: Color = Color(204, 106, 20, 255)
-    val lightOrange1: Color = Color(251, 237, 216, 255)
-    val lightOrange2: Color = Color(255, 212, 159, 255)
-    val lightOrange3: Color = Color(255, 159, 56, 255)
+    val registerMethods = RegisterMethod()
+    val registerEvents = RegisterEvent()
+
+    val lightOrange1 = Color(251, 237, 216, 255)
+    val lightOrange2 = Color(255, 212, 159, 255)
+    val lightOrange3 = Color(255, 159, 56, 255)
 
     val usernameReady = remember { mutableStateOf(false) }
     val passwordReady = remember { mutableStateOf(false) }
@@ -83,11 +90,10 @@ fun SignUpTemplate(viewModel: LoadingScreenViewModel) {
     val passwordValue = remember { mutableStateOf("") }
     val emailValue = remember { mutableStateOf("") }
 
-    var showError = remember { mutableStateOf(false) }
+    val showError = remember { mutableStateOf(false) }
     var errorM by remember { mutableStateOf("") }
 
-    val transition = rememberInfiniteTransition()
-    val anim = transition.animateFloat(
+    val anim = rememberInfiniteTransition().animateFloat(
         initialValue = 5000F,
         targetValue = 7000F,
         animationSpec = infiniteRepeatable(
@@ -96,22 +102,41 @@ fun SignUpTemplate(viewModel: LoadingScreenViewModel) {
         )
     )
 
-    val animColor = transition.animateColor(
-        initialValue = Color.White,
-        targetValue = lightOrange2,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3500),
-            repeatMode = RepeatMode.Reverse
-        )
+    val animColor = rememberInfiniteColorTransition(
+        start = Color.White,
+        end = lightOrange2
     )
-    val animColor2 = transition.animateColor(
-        initialValue = lightOrange2,
-        targetValue = Color.White,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3500),
-            repeatMode = RepeatMode.Reverse
-        )
+
+    val animColor2 = rememberInfiniteColorTransition(
+        start = lightOrange2,
+        end = Color.White
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.registerMethod.collect { event ->
+            when (event) {
+                registerMethods.BasicEmailRegistration -> {
+                    val userConfig = UserConfig(usernameValue.value, passwordValue.value, emailValue.value)
+                    viewModel.registerWithEmail(userConfig) { isValid, _ ->
+                        if (isValid) {
+                            viewModel.onNavigate(registerEvents.NavigateToMainScreen)
+                        } else {
+                            viewModel.onNavigate(registerEvents.NavigateBack)
+                        }
+                    }
+                }
+                registerMethods.GoogleEmailRegistration -> {
+                    viewModel.registerWithGoogle(currContext.applicationContext, usernameValue.value) { isValid, _ ->
+                        if (isValid) {
+                            viewModel.onNavigate(registerEvents.NavigateToMainScreen)
+                        } else {
+                            viewModel.onNavigate(registerEvents.NavigateBack)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier
@@ -179,54 +204,29 @@ fun SignUpTemplate(viewModel: LoadingScreenViewModel) {
                 fontWeight = FontWeight(200)
             )
 
-            Column(modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "  User Info.  ",
-                    modifier = Modifier
-                        .padding(top = 230.dp)
-                        .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
-                        .background(color = lightOrange3)
-                        .padding(3.dp)
-                        .background(Color.White, RoundedCornerShape(6.dp)),
-                    style = TextStyle(fontSize = 15.sp)
-                )
-            }
+            ColumnConfig(lightOrange3, 230, "  User Info.  ", Color.White)
 
-            Column(modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "  Authentication Info.  ",
-                    modifier = Modifier
-                        .padding(top = 380.dp)
-                        .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
-                        .background(color = lightOrange3)
-                        .padding(3.dp)
-                        .background(Color.White, RoundedCornerShape(6.dp)),
-                    style = TextStyle(fontSize = 15.sp)
-                )
-            }
+            ColumnConfig(lightOrange3, 380, "  Authentication Info.  ", Color.White)
 
-            Column(modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "~ or ~",
-                    modifier = Modifier
-                        .padding(top = 605.dp),
-                    style = TextStyle(fontSize = 18.sp, fontStyle = FontStyle.Italic),
-                    fontWeight = FontWeight(200)
-                )
-            }
+            ColumnConfig(Color.Transparent, 605, "~ or ~", Color.Transparent)
 
             var isEnabled by remember { mutableStateOf(true) }
             val scope = rememberCoroutineScope()
-            Column (modifier = Modifier.fillMaxWidth().padding(top = 630.dp),
+            Column (modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 630.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
 
                 CompositionLocalProvider(LocalRippleConfiguration provides null) {
                     Button(
                         onClick = {
-                            signInWithGoogle(currContext)
+                            if (usernameReady.value) {
+                                viewModel.onNavigate(registerEvents.NavigateToLoadingScreen)
+                                viewModel.onRegister(registerMethods.GoogleEmailRegistration)
+                            } else {
+                                errorM = "Enter username between 2 and 16 chars before Google Sign up!"
+                                showError.value = true
+                            }
 
                             isEnabled = false
                             scope.launch {
@@ -284,25 +284,18 @@ fun SignUpTemplate(viewModel: LoadingScreenViewModel) {
                                 isEnabled = true
                             }
 
-                            if (!usernameReady.value) {
-                                errorM = "Username should be between 2 and 20 characters long!"
-                                showError.value = true
-                            } else if (!emailReady.value) {
-                                errorM = "Email should not be empty!"
-                                showError.value = true
-                            } else if (!passwordReady.value) {
-                                errorM = "Password should be between 4 and 16 characters long!"
-                                showError.value = true
-                            }
+                            val error = validateInputs(
+                                usernameReady.value,
+                                emailReady.value,
+                                passwordReady.value
+                            )
 
-                            if (usernameReady.value && emailReady.value && passwordReady.value) {
-                                viewModel.setNewVal(2)
-                                callRegisterEmail(
-                                    usernameValue.value,
-                                    passwordValue.value,
-                                    emailValue.value,
-                                    viewModel
-                                )
+                            if (error != null) {
+                                errorM = error
+                                showError.value = true
+                            } else {
+                                viewModel.onNavigate(registerEvents.NavigateToLoadingScreen)
+                                viewModel.onRegister(registerMethods.BasicEmailRegistration)
                             }
                         },
                         enabled = isEnabled,
@@ -336,53 +329,47 @@ fun SignUpTemplate(viewModel: LoadingScreenViewModel) {
             }
         }
 
-        var usernameScaleState = remember { mutableStateOf(false) }
+        val usernameScaleState = remember { mutableStateOf(false) }
         Box(modifier = Modifier.padding(top = 300.dp, start = 70.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.rectangle_2),
-                contentDescription = "Menu icon (vector)",
-                modifier = Modifier
-                    .scale(if (usernameScaleState.value) {1.82F} else 1.72F),
-            )
+            ImageHolder(usernameScaleState)
         }
-        UsernameTextLabel(usernameScaleState, usernameReady, usernameValue)
+        val stateManager = StatesManager(usernameScaleState, usernameReady, usernameValue);
+        val textConfig = TextConfig("", "Username", 278, 2..16)
+        CustomTextLabel(stateManager, textConfig)
 
-        var emailScaleState = remember { mutableStateOf(false) }
+
+        val emailScaleState = remember { mutableStateOf(false) }
         Box(modifier = Modifier.padding(top = 450.dp, start = 70.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.rectangle_2),
-                contentDescription = "Menu icon (vector)",
-                modifier = Modifier
-                    .scale(if (emailScaleState.value) {1.82F} else 1.72F),
-            )
+            ImageHolder(emailScaleState)
         }
-        EmailTextLabel(emailScaleState, emailReady, emailValue)
+        val stateManager2 = StatesManager(emailScaleState, emailReady, emailValue);
+        val textConfig2 = TextConfig("", "Email", 428, 0..254)
+        CustomTextLabel(stateManager2, textConfig2)
 
-        var passwordState = remember { mutableStateOf(false) }
+
+        val passwordScaleState = remember { mutableStateOf(false) }
         Box(modifier = Modifier.padding(top = 550.dp, start = 70.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.rectangle_2),
-                contentDescription = "Menu icon (vector)",
-                modifier = Modifier
-                    .scale(if (passwordState.value) {1.82F} else 1.72F),
-            )
+            ImageHolder(passwordScaleState)
         }
-        PasswordTextLabel(passwordState, passwordReady, passwordValue)
+        val stateManager3 = StatesManager(passwordScaleState, passwordReady, passwordValue)
+        val textConfig3 = TextConfig("", "Password", 528, 4..20)
+        CustomTextLabel(stateManager3, textConfig3)
     }
 }
 
 @Composable
-fun UsernameTextLabel(state: MutableState<Boolean>, isReady: MutableState<Boolean>, value: MutableState<String>) {
-    var username by remember { mutableStateOf("") }
-    Box(modifier = Modifier.padding(top = 278.dp)) {
+private fun CustomTextLabel(stateManager: StatesManager, data: TextConfig) {
+    var container by remember { mutableStateOf(data.text) }
+
+    Box(modifier = Modifier.padding(top = data.top.dp)) {
         TextField(
-            value = username,
-            onValueChange = {
-                username = it
-                isReady.value = username.length >= 2
-                value.value = username
-                            },
-            label = {Text("Username")},
+            value = container,
+            onValueChange = { newValue ->
+                container = newValue
+                stateManager.isReady.value = newValue.length in data.range
+                stateManager.value.value = newValue
+            },
+            label = { Text(data.label) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
@@ -390,82 +377,75 @@ fun UsernameTextLabel(state: MutableState<Boolean>, isReady: MutableState<Boolea
                 errorContainerColor = Color.Transparent
             ),
             modifier = Modifier.onFocusChanged { focusState ->
-                state.value = focusState.isFocused
+                stateManager.state.value = focusState.isFocused
             }
         )
     }
 }
 
 @Composable
-fun EmailTextLabel(state: MutableState<Boolean>, isReady: MutableState<Boolean>, value: MutableState<String>) {
-    var email by remember { mutableStateOf("") }
-
-    Box(modifier = Modifier.padding(top = 428.dp)) {
-        TextField(
-            value = email,
-            onValueChange = {
-                email = it
-                isReady.value =
-                    email.isNotEmpty() || email.isNotBlank()
-                value.value = email
-                            },
-            label = {Text("Email")},
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                errorContainerColor = Color.Transparent
-            ),
-            modifier = Modifier.onFocusChanged { focusState ->
-                state.value = focusState.isFocused
-            }
+private fun ColumnConfig(lightOrange: Color, top: Int, text: String, color: Color) {
+    Column(modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(top = top.dp)
+                .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
+                .background(color = lightOrange)
+                .padding(3.dp)
+                .background(color, RoundedCornerShape(6.dp)),
+            style = TextStyle(fontSize = 15.sp)
         )
     }
 }
 
 @Composable
-fun PasswordTextLabel(state: MutableState<Boolean>, isReady: MutableState<Boolean>, value: MutableState<String>) {
-    var password by remember { mutableStateOf("") }
-
-    Box(modifier = Modifier.padding(top = 528.dp)) {
-        TextField(
-            value = password,
-            onValueChange = {
-                password = it
-                isReady.value = password.length >= 4
-                value.value = password
-                            },
-            label = {Text("Password")},
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                errorContainerColor = Color.Transparent
-            ),
-            modifier = Modifier.onFocusChanged { focusState ->
-                state.value = focusState.isFocused
-            }
-        )
-    }
+private fun ImageHolder(state: MutableState<Boolean>) {
+    Image(
+        painter = painterResource(id = R.drawable.rectangle_2),
+        contentDescription = "Menu icon (vector)",
+        modifier = Modifier
+            .scale(if (state.value) {1.82F} else 1.72F),
+    )
 }
 
 @Composable
-fun DisplayErrorMessage(
+private fun rememberInfiniteColorTransition(
+    start: Color,
+    end: Color,
+    duration: Int = 3500
+): State<Color> {
+    val transition = rememberInfiniteTransition(label = "colorTransition")
+    return transition.animateColor(
+        initialValue = start,
+        targetValue = end,
+        animationSpec = infiniteRepeatable(
+            animation = tween(duration),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "colorAnim"
+    )
+}
+
+
+@Composable
+private fun DisplayErrorMessage(
     errorMessage: String,
     onClose: () -> Unit,
 ) {
+    val backgroundColor = Color(215, 59, 59, 255).copy(alpha = 0.96f)
+    val textColor = Color(239, 188, 188, 255)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-
             Box(
                 modifier = Modifier
                     .background(
-                        color = Color(215, 59, 59, 255).copy(.96f),
+                        color = backgroundColor,
                         shape = RoundedCornerShape(50)
                     )
                     .padding(horizontal = 14.dp, vertical = 8.dp)
@@ -473,7 +453,7 @@ fun DisplayErrorMessage(
 
                 Text(
                     text = errorMessage + " ".repeat(6),
-                    color = Color(239, 188, 188, 255),
+                    color = textColor,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -484,7 +464,7 @@ fun DisplayErrorMessage(
                     onClick = onClose,
                     modifier = Modifier
                         .size(18.dp)
-                        .align(Alignment.TopEnd),
+                        .align(Alignment.CenterEnd),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -499,5 +479,5 @@ fun DisplayErrorMessage(
 @Composable
 @Preview
 fun Preview2() {
-    SignUpTemplate(LoadingScreenViewModel())
+    SignUpTemplate(RegisterViewModel())
 }

@@ -1,10 +1,10 @@
-package com.example.chainsearch.initialAction.auth.registerFunctionality;
-import static com.example.chainsearch.initialAction.auth.helpers.RegisterAuthServiceHelperKt.addNewUser;
-import static com.example.chainsearch.initialAction.auth.helpers.RegisterAuthServiceHelperKt.isBuildVersionValid;
-import static com.example.chainsearch.initialAction.auth.helpers.RegisterAuthServiceHelperKt.isCallbackNull;
+package com.example.chainsearch.feature_register.data.data_source.basicRegistration;
+import static com.example.chainsearch.feature_register.data.data_source.helpers.utils.RegisterAuthServiceHelperKt.addNewUser;
+import static com.example.chainsearch.feature_register.data.data_source.helpers.utils.RegisterAuthServiceHelperKt.isBuildVersionValid;
+import static com.example.chainsearch.feature_register.data.data_source.helpers.utils.RegisterAuthServiceHelperKt.isCallbackNull;
 
-import com.example.chainsearch.initialAction.auth.callbacks.IsValidCallback;
-import com.example.chainsearch.initialAction.auth.helpers.AuthData;
+import com.example.chainsearch.feature_register.data.data_source.helpers.callbacks.IsValidCallback;
+import com.example.chainsearch.feature_register.data.data_source.helpers.utils.AuthData;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -18,7 +18,7 @@ public class RegisterAuthService {
         this.databaseRef = databaseRef;
     }
 
-    public void registerEmail(String email, String password, String username, IsValidCallback callback) {
+    public void registerWithEmail(String email, String password, String username, IsValidCallback callback) {
         if (isCallbackNull(callback)) {
             callback = new IsValidCallback() {
                 @Override

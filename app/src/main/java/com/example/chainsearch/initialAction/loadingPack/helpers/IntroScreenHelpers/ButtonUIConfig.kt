@@ -1,4 +1,4 @@
-package com.example.chainsearch.initialAction.loadingPack.helpers
+package com.example.chainsearch.initialAction.loadingPack.helpers.IntroScreenHelpers
 
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable

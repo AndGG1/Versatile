@@ -1,4 +1,4 @@
-package com.example.chainsearch.initialAction.auth.helpers.credentialHelpers
+package com.example.chainsearch.feature_register.data.data_source.helpers.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi

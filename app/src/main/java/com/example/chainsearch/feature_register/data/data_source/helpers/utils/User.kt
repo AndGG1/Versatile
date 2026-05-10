@@ -1,4 +1,4 @@
-package com.example.chainsearch.initialAction.auth
+package com.example.chainsearch.feature_register.data.data_source.helpers.utils
 
 data class User(
     var username: String? = null,

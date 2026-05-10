@@ -1,11 +1,11 @@
-package com.example.chainsearch.initialAction.auth.helpers.credentialHelpers
+package com.example.chainsearch.feature_register.data.data_source.helpers.utils
 
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
-import com.example.chainsearch.initialAction.auth.callbacks.CredentialCallback
+import com.example.chainsearch.feature_register.data.data_source.helpers.callbacks.CredentialCallback
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.example.chainsearch.initialAction.auth.helpers
+package com.example.chainsearch.feature_register.data.data_source.helpers.utils
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference

@@ -1,8 +1,7 @@
-package com.example.chainsearch.initialAction.auth.helpers
+package com.example.chainsearch.feature_register.data.data_source.helpers.utils
 
 import android.os.Build
-import com.example.chainsearch.initialAction.auth.callbacks.IsValidCallback
-import com.example.chainsearch.initialAction.auth.User
+import com.example.chainsearch.feature_register.data.data_source.helpers.callbacks.IsValidCallback
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseUser

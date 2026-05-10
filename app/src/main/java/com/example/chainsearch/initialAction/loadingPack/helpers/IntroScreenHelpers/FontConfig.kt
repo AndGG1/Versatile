@@ -1,4 +1,4 @@
-package com.example.chainsearch.initialAction.loadingPack.helpers
+package com.example.chainsearch.initialAction.loadingPack.helpers.IntroScreenHelpers
 
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
