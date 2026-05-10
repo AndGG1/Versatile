@@ -39,10 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import com.example.chainsearch.R
-import com.example.chainsearch.initialAction.loadingPack.helpers.FontConfig
-import com.example.chainsearch.initialAction.loadingPack.helpers.rememberTransparentButtonColors
+import com.example.chainsearch.initialAction.loadingPack.helpers.IntroScreenHelpers.FontConfig
+import com.example.chainsearch.initialAction.loadingPack.helpers.IntroScreenHelpers.rememberTransparentButtonColors
 import com.example.chainsearch.initialAction.viewModels.LoadingScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,7 +81,8 @@ fun IntroScreenTemplate(viewModel: LoadingScreenViewModel) {
                 TextConfig(
                     "Welcome to",
                     -460,
-                    FontConfig(30, FontWeight.ExtraBold, null))
+                    FontConfig(30, FontWeight.ExtraBold, null)
+                )
             }
         }
     }

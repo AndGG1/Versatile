@@ -17,7 +17,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +42,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import com.example.chainsearch.feature_register.presentation.layout.SignUpTemplate
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -58,7 +58,7 @@ fun LoadingScreen(viewModel: LoadingScreenViewModel) {
 
         when (targetState) {
             1 -> IntroScreenTemplate(viewModel)
-            2 -> LoadingScreenTemplate_1(viewModel)
+            2 -> LoadingScreenTemplate()
             3 -> SignUpTemplate(viewModel)
             4 -> LogInTemplate(viewModel)
         }
@@ -66,7 +66,7 @@ fun LoadingScreen(viewModel: LoadingScreenViewModel) {
 }
 
 @Composable
-fun LoadingScreenTemplate_1(viewModel: LoadingScreenViewModel) {
+fun LoadingScreenTemplate() {
     val lightOrange1 = Color(251, 237, 216, 255)
     val transition = rememberInfiniteTransition()
     val anim = transition.animateFloat(

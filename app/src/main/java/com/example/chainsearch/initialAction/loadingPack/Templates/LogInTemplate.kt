@@ -17,16 +17,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +50,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -50,17 +60,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chainsearch.R
 //import com.example.chainsearch.initialAction.auth.loginFunctionality.callLoginEmail //todo
+import com.example.chainsearch.feature_register.presentation.helpers.LayoutHelpers.StatesManager
+import com.example.chainsearch.feature_register.presentation.helpers.LayoutHelpers.TextConfig
 import com.example.chainsearch.initialAction.viewModels.LoadingScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogInTemplate(viewModel: LoadingScreenViewModel) {
-    val orange: Color = Color(204, 106, 20, 255)
-    val lightOrange1: Color = Color(251, 237, 216, 255)
-    val lightOrange2: Color = Color(255, 212, 159, 255)
-    val lightOrange3: Color = Color(255, 159, 56, 255)
+    val currContext = LocalContext.current
+
+    val orange = Color(204, 106, 20, 255)
+    val lightOrange1 = Color(251, 237, 216, 255)
+    val lightOrange2 = Color(255, 212, 159, 255)
+    val lightOrange3 = Color(255, 159, 56, 255)
 
     val emailReady = remember { mutableStateOf(false) }
     val passwordReady = remember { mutableStateOf(false) }
@@ -68,11 +82,10 @@ fun LogInTemplate(viewModel: LoadingScreenViewModel) {
     val emailValue = remember { mutableStateOf("") }
     val passwordValue = remember { mutableStateOf("") }
 
-    var showError = remember { mutableStateOf(false) }
+    val showError = remember { mutableStateOf(false) }
     var errorM by remember { mutableStateOf("") }
 
-    val transition = rememberInfiniteTransition()
-    val anim = transition.animateFloat(
+    val anim = rememberInfiniteTransition().animateFloat(
         initialValue = 5000F,
         targetValue = 7000F,
         animationSpec = infiniteRepeatable(
@@ -81,21 +94,14 @@ fun LogInTemplate(viewModel: LoadingScreenViewModel) {
         )
     )
 
-    val animColor = transition.animateColor(
-        initialValue = Color.White,
-        targetValue = lightOrange2,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3500),
-            repeatMode = RepeatMode.Reverse
-        )
+    val animColor = rememberInfiniteColorTransition(
+        start = Color.White,
+        end = lightOrange2
     )
-    val animColor2 = transition.animateColor(
-        initialValue = lightOrange2,
-        targetValue = Color.White,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3500),
-            repeatMode = RepeatMode.Reverse
-        )
+
+    val animColor2 = rememberInfiniteColorTransition(
+        start = lightOrange2,
+        end = Color.White
     )
 
     Surface(
@@ -164,21 +170,7 @@ fun LogInTemplate(viewModel: LoadingScreenViewModel) {
                 fontWeight = FontWeight(200)
             )
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "  Authentication Info.  ",
-                    modifier = Modifier
-                        .padding(top = 280.dp)
-                        .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
-                        .background(color = lightOrange3)
-                        .padding(3.dp)
-                        .background(Color.White, RoundedCornerShape(6.dp)),
-                    style = TextStyle(fontSize = 15.sp)
-                )
-            }
+            ColumnConfig(lightOrange3, 280, "  Authentication Info.  ", Color.White)
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -193,7 +185,7 @@ fun LogInTemplate(viewModel: LoadingScreenViewModel) {
             }
 
             var isEnabled by remember { mutableStateOf(true) }
-            var scope = rememberCoroutineScope()
+            val scope = rememberCoroutineScope()
 
             Column(
                 modifier = Modifier
@@ -201,33 +193,35 @@ fun LogInTemplate(viewModel: LoadingScreenViewModel) {
                     .padding(top = 535.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = {
-                        isEnabled = false
-                        scope.launch {
-                            delay(1500)
-                            isEnabled = true
-                        }
-                    },
-                    enabled = isEnabled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        disabledContentColor = Color.Transparent
-                    ),
-                    modifier = Modifier.background(color = Color.Transparent)
-                ) {
-                    Text(
-                        text = "       Log in with Google  ",
-                        modifier = Modifier
-                            .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
-                            .background(Color.White)
-                            .padding(6.dp)
-                            .background(Color.White),
-                        color = Color.DarkGray,
-                        style = TextStyle(fontSize = 20.sp)
-                    )
+                CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                    Button(
+                        onClick = {
+                            isEnabled = false
+                            scope.launch {
+                                delay(1500)
+                                isEnabled = true
+                            }
+                        },
+                        enabled = isEnabled,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            disabledContentColor = Color.Transparent
+                        ),
+                        modifier = Modifier.background(color = Color.Transparent)
+                    ) {
+                        Text(
+                            text = "       Log in with Google  ",
+                            modifier = Modifier
+                                .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
+                                .background(Color.White)
+                                .padding(6.dp)
+                                .background(Color.White),
+                            color = Color.DarkGray,
+                            style = TextStyle(fontSize = 20.sp)
+                        )
+                    }
                 }
             }
 
@@ -250,90 +244,88 @@ fun LogInTemplate(viewModel: LoadingScreenViewModel) {
                     .padding(top = 650.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = {
-                        isEnabled = false
-                        scope.launch {
-                            delay(3000)
-                            isEnabled = true
-                        }
+                CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                    Button(
+                        onClick = {
+                            isEnabled = false
+                            scope.launch {
+                                delay(3000)
+                                isEnabled = true
+                            }
 
-                        if (!emailReady.value) {
-                            errorM = "Email should not be empty!"
-                            showError.value = true
-                        } else if (!passwordReady.value) {
-                            errorM = "Password should be between 4 and 16 characters long!"
-                            showError.value = true
-                        }
+                            if (!emailReady.value) {
+                                errorM = "Email should not be empty!"
+                                showError.value = true
+                            } else if (!passwordReady.value) {
+                                errorM = "Password should be between 4 and 16 characters long!"
+                                showError.value = true
+                            }
 
-                        if (emailReady.value && passwordReady.value) {
-                            viewModel.setNewVal(2)
-                   //         callLoginEmail(emailValue.value, passwordValue.value, viewModel) //TODO
-                        }
-                    },
-                    enabled = isEnabled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        disabledContentColor = Color.Transparent
-                    ),
-                    modifier = Modifier
-                        .background(color = Color.Transparent)
-                        .scale(1.35F)
-                ) {
-                    Text(
-                        text = "Log In",
-                        color = lightOrange1,
+                            if (emailReady.value && passwordReady.value) {
+                                viewModel.setNewVal(2)
+                                // callLoginEmail(emailValue.value, passwordValue.value, viewModel) //TODO
+                            }
+                        },
+                        enabled = isEnabled,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            disabledContentColor = Color.Transparent
+                        ),
                         modifier = Modifier
-                            .background(
-                                color = lightOrange3,
-                                shape = RoundedCornerShape(50)
+                            .background(color = Color.Transparent)
+                            .scale(1.35F)
+                    ) {
+                        Text(
+                            text = "Log In",
+                            color = lightOrange1,
+                            modifier = Modifier
+                                .background(
+                                    color = lightOrange3,
+                                    shape = RoundedCornerShape(50)
+                                )
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.SemiBold
                             )
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold
                         )
-                    )
+                    }
                 }
             }
         }
 
-        var emailScaleState = remember { mutableStateOf(false) }
+        val emailScaleState = remember { mutableStateOf(false) }
         Box(modifier = Modifier.padding(top = 350.dp, start = 70.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.rectangle_2),
-                contentDescription = "Menu icon (vector)",
-                modifier = Modifier.scale(if (emailScaleState.value) 1.82F else 1.72F),
-            )
+            ImageHolder(emailScaleState)
         }
-        LoginEmailTextLabel(emailScaleState, emailReady, emailValue)
+        val stateManager = StatesManager(emailScaleState, emailReady, emailValue)
+        val textConfig = TextConfig("", "Email", 328, 1..254)
+        CustomTextLabel(stateManager, textConfig)
 
-        var passwordState = remember { mutableStateOf(false) }
+        val passwordScaleState = remember { mutableStateOf(false) }
         Box(modifier = Modifier.padding(top = 450.dp, start = 70.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.rectangle_2),
-                contentDescription = "Menu icon (vector)",
-                modifier = Modifier.scale(if (passwordState.value) 1.82F else 1.72F),
-            )
+            ImageHolder(passwordScaleState)
         }
-        LoginPasswordTextLabel(passwordState, passwordReady, passwordValue)
+        val stateManager2 = StatesManager(passwordScaleState, passwordReady, passwordValue)
+        val textConfig2 = TextConfig("", "Password", 428, 4..16)
+        CustomTextLabel(stateManager2, textConfig2)
     }
 }
 
 @Composable
-fun LoginEmailTextLabel(state: MutableState<Boolean>, isReady: MutableState<Boolean>, value: MutableState<String>) {
-    var email by remember { mutableStateOf("") }
+private fun CustomTextLabel(stateManager: StatesManager, data: TextConfig) {
+    var container by remember { mutableStateOf(data.text) }
 
-    Box(modifier = Modifier.padding(top = 328.dp)) {
+    Box(modifier = Modifier.padding(top = data.top.dp)) {
         TextField(
-            value = email,
-            onValueChange = {
-                email = it
-                isReady.value = email.isNotEmpty() || email.isNotBlank()
-                value.value = email
+            value = container,
+            onValueChange = { newValue ->
+                container = newValue
+                stateManager.isReady.value = newValue.length in data.range
+                stateManager.value.value = newValue
             },
-            label = { Text("Email") },
+            label = { Text(data.label) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
@@ -341,35 +333,101 @@ fun LoginEmailTextLabel(state: MutableState<Boolean>, isReady: MutableState<Bool
                 errorContainerColor = Color.Transparent
             ),
             modifier = Modifier.onFocusChanged { focusState ->
-                state.value = focusState.isFocused
+                stateManager.state.value = focusState.isFocused
             }
         )
     }
 }
 
 @Composable
-fun LoginPasswordTextLabel(state: MutableState<Boolean>, isReady: MutableState<Boolean>, value: MutableState<String>) {
-    var password by remember { mutableStateOf("") }
-
-    Box(modifier = Modifier.padding(top = 428.dp)) {
-        TextField(
-            value = password,
-            onValueChange = {
-                password = it
-                isReady.value = password.length >= 4
-                value.value = password
-            },
-            label = { Text("Password") },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                errorContainerColor = Color.Transparent
-            ),
-            modifier = Modifier.onFocusChanged { focusState ->
-                state.value = focusState.isFocused
-            }
+private fun ColumnConfig(lightOrange: Color, top: Int, text: String, color: Color) {
+    Column(modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(top = top.dp)
+                .clip(shape = RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
+                .background(color = lightOrange)
+                .padding(3.dp)
+                .background(color, RoundedCornerShape(6.dp)),
+            style = TextStyle(fontSize = 15.sp)
         )
+    }
+}
+
+@Composable
+private fun ImageHolder(state: MutableState<Boolean>) {
+    Image(
+        painter = painterResource(id = R.drawable.rectangle_2),
+        contentDescription = "Menu icon (vector)",
+        modifier = Modifier
+            .scale(if (state.value) {1.82F} else 1.72F),
+    )
+}
+
+@Composable
+private fun rememberInfiniteColorTransition(
+    start: Color,
+    end: Color,
+    duration: Int = 3500
+): State<Color> {
+    val transition = rememberInfiniteTransition(label = "colorTransition")
+    return transition.animateColor(
+        initialValue = start,
+        targetValue = end,
+        animationSpec = infiniteRepeatable(
+            animation = tween(duration),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "colorAnim"
+    )
+}
+
+@Composable
+private fun DisplayErrorMessage(
+    errorMessage: String,
+    onClose: () -> Unit,
+) {
+    val backgroundColor = Color(215, 59, 59, 255).copy(alpha = 0.96f)
+    val textColor = Color(239, 188, 188, 255)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = backgroundColor,
+                    shape = RoundedCornerShape(50)
+                )
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+        ) {
+
+            Text(
+                text = errorMessage + " ".repeat(6),
+                color = textColor,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier.align(Alignment.Center)
+            )
+
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier
+                    .size(18.dp)
+                    .align(Alignment.CenterEnd),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
 
